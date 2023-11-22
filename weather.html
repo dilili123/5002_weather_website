@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dress Idea and Image Based on Weather</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #eef2f3;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #cityInput {
+            padding: 10px;
+            margin-top: 20px;
+            width: 200px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #getWeatherBtn {
+            padding: 10px 20px;
+            margin-left: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #getWeatherBtn:hover {
+            background-color: #0056b3;
+        }
+
+        #weatherResult, #dressIdea, #imageContainer {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <input type="text" id="cityInput" placeholder="Enter City Name">
+    <button id="getWeatherBtn">Get Weather and a Dress Idea</button>
+    <div id="weatherResult"></div>
+    <div id="dressIdea"></div>
+    <div id="imageContainer"></div>
+
+    <script>
+        document.getElementById('getWeatherBtn').addEventListener('click', getWeatherAndDressIdea);
+        document.getElementById('cityInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                getWeatherAndDressIdea();
+            }
+        });
+
+        function getWeatherAndDressIdea() {
+            var city = document.getElementById('cityInput').value;
+            var weatherUrl = 'https://api.weatherapi.com/v1/current.json?key=2a20c6fe537d49aeb1a30312231811&q=' + city;
+
+            fetch(weatherUrl)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('weatherResult').innerText = 'Weather in ' + city + ': ' + data.current.condition.text;
+                    return fetchDressIdea(data.current.condition.text);
+                })
+                .then(dressIdea => {
+                    document.getElementById('dressIdea').innerText = dressIdea;
+                    return fetchDressImage(dressIdea);
+                })
+                .then(imageUrl => {
+                    var imgTag = document.createElement('img');
+                    imgTag.src = imageUrl;
+                    document.getElementById('imageContainer').appendChild(imgTag);
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function fetchDressIdea(weather) {
+            var prompt = 'Suggest a dress idea for ' + weather + ' weather.';
+            var openAIUrl = 'https://api.openai.com/v1/engines/text-davinci-003/completions';
+
+            return fetch(openAIUrl, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer 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',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ prompt: prompt, max_tokens: 100 })
+            })
+            .then(response => response.json())
+            .then(data => {
+                return data.choices[0].text;
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function fetchDressImage(dressIdea) {
+            var dalleUrl = 'https://api.openai.com/v1/images/generations';
+
+            return fetch(dalleUrl, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer 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',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: "dall-e-3",
+                    prompt: dressIdea,
+                    n: 1,
+                    size: "1024x1024"
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                return data.data[0]['url']; // Extracting the image URL from the response
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
