@@ -71,8 +71,13 @@
             fetch(weatherUrl)
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('weatherResult').innerText = 'Weather in ' + city + ': ' + data.current.condition.text;
-                    return fetchDressIdea(data.current.condition.text);
+                    var weather = data.current.condition.text;
+                    var temp = data.current.temp_c;
+                    var humidity = data.current.humidity;
+                    var wind = data.current.wind_kph;
+
+                    document.getElementById('weatherResult').innerText = 'Weather in ' + city + ': ' + weather + ', Temperature: ' + temp + '°C, Humidity: ' + humidity + '%, Wind: ' + wind + ' kph';
+                    return fetchDressIdea(weather, temp, humidity, wind);
                 })
                 .then(dressIdea => {
                     document.getElementById('dressIdea').innerText = dressIdea;
@@ -86,14 +91,14 @@
                 .catch(error => console.error('Error:', error));
         }
 
-        function fetchDressIdea(weather) {
-            var prompt = 'Suggest a dress idea for ' + weather + ' weather.';
+        function fetchDressIdea(weather, temp, humidity, wind) {
+            var prompt = 'Suggest a dress idea for weather that is ' + weather + ', with a temperature of ' + temp + '°C, humidity at ' + humidity + '%, and wind speed of ' + wind + ' kph.';
             var openAIUrl = 'https://api.openai.com/v1/engines/text-davinci-003/completions';
 
             return fetch(openAIUrl, {
                 method: 'POST',
                 headers: {
-                    'Authorization': 'Bearer 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',
+                    'Authorization': 'Bearer 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',
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ prompt: prompt, max_tokens: 100 })
@@ -111,7 +116,7 @@
             return fetch(dalleUrl, {
                 method: 'POST',
                 headers: {
-                    'Authorization': 'Bearer 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',
+                    'Authorization': 'Bearer XXXXXXX', // Please use one of the OpenAI keys here in your LOCAL environment. DO NOT push openai keys to Github! Otherwise, the key will be disabled.
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
