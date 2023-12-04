@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../../shielded-stream-12560/.github"
+		},
+		{
+			"path": "../../../shielded-stream-12560/gettingstarted"
+		},
+		{
+			"path": "../../../shielded-stream-12560/hello"
+		},
+		{
+			"path": "../../../shielded-stream-12560/staticfiles"
+		}
+	],
+	"settings": {}
+}
